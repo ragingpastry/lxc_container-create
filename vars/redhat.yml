@@ -1,0 +1,5 @@
+---
+lxc_repository_url: "https://copr-be.cloud.fedoraproject.org/results/thm/lxc2.0/epel-7-$basearch/"
+lxc_packages:
+  - lxc
+  - lxc-templates

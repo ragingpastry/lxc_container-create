@@ -1,0 +1,7 @@
+---
+
+- include: install_lxc.yml
+
+- include: build_lxc.yml
+
+- include: start_lxc_containers.yml

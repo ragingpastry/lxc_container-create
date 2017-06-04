@@ -1,0 +1,34 @@
+---
+- include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+
+- name: Add LXC COPR repository
+  yum_repository:
+    name: lxc
+    description: lxc
+    baseurl: "{{ lxc_repository_url }}"
+    gpgcheck: no
+  tags:
+    - lxc_install
+
+- name: Install LXC
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ lxc_packages }}"
+  tags:
+    - lxc_install
+
+- name: Enable LXC bridging
+  lineinfile:
+    path: /etc/sysconfig/lxc
+    regexp: '^USE_LXC_BRIDGE'
+    line: 'USE_LXC_BRIDGE="true"'
+
+- name: Start and enable lxc service
+  service:
+    name: lxc
+    state: started
+    enabled: true

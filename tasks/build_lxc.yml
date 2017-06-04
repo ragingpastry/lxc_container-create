@@ -1,0 +1,42 @@
+---
+- name: Check if containers are already built
+  shell: "lxc-info -n {{ item }}"
+  register: container_exists
+  failed_when: false
+  with_items: "{{ lxc_containers }}"
+
+- name: Build LXC containers
+  shell: "lxc-create --name {{ item.name }} --template {{ item.template }} -- {{ item.extra_args }}"
+  with_items: "{{ lxc_containers }}"
+  when: container_exists.changed == false
+  tags:
+    - build_lxc
+
+- name: Ensure .ssh exists in container
+  file:
+    state: directory
+    dest: "/var/lib/lxc/{{ item.name }}/rootfs/root/.ssh"
+    owner: root
+    group: root
+    mode: 0700
+  with_items: "{{ lxc_containers }}"
+
+- name: Drop root public key into container
+  lineinfile:
+    line: "{{ public_ssh_key }}"
+    dest: "/var/lib/lxc/{{ item.name }}/rootfs/root/.ssh/authorized_keys"
+    create: true
+  with_items: "{{ lxc_containers }}"
+
+- set_fact:
+    hosts_content: "{{ lookup('template', 'container-interface.ini.j2') }}"
+  with_items:
+    - "{{ lxc_containers }}"
+
+- name: Drop veth configurations
+  blockinfile:
+    dest: "/var/lib/lxc/{{ item.name }}/config"
+    content: "{{ hosts_content }}"
+    state: present
+  with_items:
+    - "{{ lxc_containers }}"
