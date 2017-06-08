@@ -1,5 +1,4 @@
 ---
-
 - include: install_lxc.yml
 
 - include: build_lxc.yml

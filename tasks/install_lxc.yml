@@ -1,5 +1,6 @@
 ---
-- include_vars: "{{ item }}"
+- name: Include OS specific variables
+  include_vars: "{{ item }}"
   with_first_found:
     - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}.yml"
     - "{{ ansible_os_family | lower }}.yml"
@@ -13,17 +14,17 @@
   tags:
     - lxc_install
 
-- name: Install LXC
+- name: Install LXC and dependencies
   yum:
     name: "{{ item }}"
-    state: latest
+    state: present
   with_items: "{{ lxc_packages }}"
   tags:
     - lxc_install
 
 - name: Enable LXC bridging
   lineinfile:
-    path: /etc/sysconfig/lxc
+    dest: /etc/sysconfig/lxc
     regexp: '^USE_LXC_BRIDGE'
     line: 'USE_LXC_BRIDGE="true"'
 

@@ -1,13 +1,13 @@
 # Create a veth pair for the container
-lxc.network.type = {{ container_network[item.name].type|default('veth') }}
+lxc.network.type = {{ item.value[0].type|default('veth') }}
 lxc.network.flags = up
 
 # Network bridge on the host to connect one side of the veth pair
-lxc.network.link = {{ container_network[item.name].bridge }}
+lxc.network.link = {{ item.value[0].bridge }}
 
 # Network device within the container to name veth pair
-lxc.network.name = {{ container_network[item.name].interface }}
+lxc.network.name = {{ item.value[0].interface }}
 
 # IP Address to associate with the veth side in the container
-lxc.network.ipv4 = {{ container_network[item.name].ipv4_address }}
-lxc.network.ipv4.gateway = {{ container_network[item.name].ipv4_gateway }}
+lxc.network.ipv4 = {{ item.value[0].ipv4_address }}
+lxc.network.ipv4.gateway = {{ item.value[0].ipv4_gateway }}

@@ -1,8 +1,11 @@
 ---
+- name: Check if container is running
+  command: "lxc-info -n {{ item.value[0].name }}"
+  register: lxc_container_check
+  changed_when: false
+  with_dict: "{{ services }}"
+
 - name: Start LXC containers
-  command: "lxc-start --name {{ item.name }}"
-  ignore_errors: true
-  with_items:
-    - "{{ lxc_containers }}"
-  tags:
-    - start_lxc_containers
+  command: "lxc-start --name {{ item.value[0].name }}"
+  when: lxc_container_check.results[0].rc != 0
+  with_dict: "{{ services }}"

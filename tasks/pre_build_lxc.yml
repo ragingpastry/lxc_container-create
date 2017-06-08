@@ -1,0 +1,22 @@
+---
+- name: Map services to lxc_containers variable
+  set_fact:
+    lxc_containers_item:
+      - name: "{{ item.name }}"
+        template: "{{ item.template }}"
+        ipv4_address: "{{ item.ipv4_address }}"
+        ipv4_gateway: "{{ item.ipv4_gateway }}"
+        type: "{{ item.type }}"
+        bridge: "{{ item.bridge }}"
+        interface: "{{ item.interface }}"
+  with_items: "{{ services }}"
+  register: lxc_containers_result
+
+- name: Combine lxc_containers
+  set_fact:
+    lxc_containers: "{{ lxc_containers_result.results | map(attributes='ansible_facts.lxc_containers_item') | list }}"
+
+- name: debug lxc_containers
+  debug:
+    var: lxc_containers
+        

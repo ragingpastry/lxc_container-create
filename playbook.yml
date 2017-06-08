@@ -1,0 +1,4 @@
+---
+- hosts: all
+  roles:
+    - role: lxc_container-create

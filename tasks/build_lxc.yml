@@ -1,42 +1,42 @@
 ---
 - name: Check if containers are already built
-  shell: "lxc-info -n {{ item }}"
+  shell: "lxc-info -n {{ item.value[0].name }}"
   register: container_exists
-  failed_when: false
-  with_items: "{{ lxc_containers }}"
+  changed_when: false
+  ignore_errors: true
+  with_dict: "{{ services }}"
 
 - name: Build LXC containers
-  shell: "lxc-create --name {{ item.name }} --template {{ item.template }} -- {{ item.extra_args }}"
-  with_items: "{{ lxc_containers }}"
-  when: container_exists.changed == false
+  shell: lxc-create --name "{{ item.value[0].name }}" --template "{{ item.value[0].template }}" -- "{{ item.value[0].extra_args }}"
+  with_dict: "{{ services }}"
+  when: container_exists.results[0].rc != 0
   tags:
     - build_lxc
 
 - name: Ensure .ssh exists in container
   file:
     state: directory
-    dest: "/var/lib/lxc/{{ item.name }}/rootfs/root/.ssh"
+    dest: "/var/lib/lxc/{{ item.value[0].name }}/rootfs/root/.ssh"
     owner: root
     group: root
     mode: 0700
-  with_items: "{{ lxc_containers }}"
+  with_dict: "{{ services }}"
 
 - name: Drop root public key into container
   lineinfile:
     line: "{{ public_ssh_key }}"
-    dest: "/var/lib/lxc/{{ item.name }}/rootfs/root/.ssh/authorized_keys"
+    dest: "/var/lib/lxc/{{ item.value[0].name }}/rootfs/root/.ssh/authorized_keys"
     create: true
-  with_items: "{{ lxc_containers }}"
+  with_dict: "{{ services }}"
 
-- set_fact:
-    hosts_content: "{{ lookup('template', 'container-interface.ini.j2') }}"
-  with_items:
-    - "{{ lxc_containers }}"
+- name: Set container specific veth facts
+  set_fact:
+    {"{{ item.key }}": "{{ lookup('template', 'container-interface.ini.j2') }}"}
+  with_dict: "{{ services }}"
 
 - name: Drop veth configurations
   blockinfile:
-    dest: "/var/lib/lxc/{{ item.name }}/config"
-    content: "{{ hosts_content }}"
+    dest: "/var/lib/lxc/{{ item.value[0].name }}/config"
+    content: "{{ item.key }}"
     state: present
-  with_items:
-    - "{{ lxc_containers }}"
+  with_dict: "{{ services }}"
