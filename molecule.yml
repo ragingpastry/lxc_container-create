@@ -3,6 +3,13 @@ dependency:
   name: galaxy
 driver:
   name: vagrant
+  ssh_connection_options:
+    - -o UserKnownHostsFile=/dev/null
+    - -o ControlMaster=auto
+    - -o ControlPersist=60s
+    - -o IdentitiesOnly=yes
+    - -o StrictHostKeyChecking=no
+    - -o ControlPath=~/.ansible/cp/%r@%h-%p
 vagrant:
   platforms:
     - name: centos/7

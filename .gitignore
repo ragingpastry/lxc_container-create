@@ -1,2 +1,5 @@
-.vagrant/**
-.molecule/**
+**/.vagrant/**
+**/.molecule/**
+**/__pycache__/**
+**/.cache/**
+*.swp

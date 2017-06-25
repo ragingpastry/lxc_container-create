@@ -7,7 +7,10 @@
   with_dict: "{{ services }}"
 
 - name: Build LXC containers
-  shell: lxc-create --name "{{ item.value[0].name }}" --template "{{ item.value[0].template }}" -- "{{ item.value[0].extra_args }}"
+  shell: |
+    lxc-create --name "{{ item.value[0].name }}" \
+    --template "{{ item.value[0].template }}" \ 
+    -- "{{ item.value[0].extra_args }}"
   with_dict: "{{ services }}"
   when: container_exists.results[0].rc != 0
   tags:
