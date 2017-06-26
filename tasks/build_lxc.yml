@@ -1,18 +1,24 @@
 ---
 - name: Check if containers are already built
-  shell: "lxc-info -n {{ item.value[0].name }}"
+  command: "lxc-info -n {{ item.value[0].name }}"
   register: container_exists
   changed_when: false
-  ignore_errors: true
+  failed_when: >
+    'exist' not in container_exists.stderr and
+    'Name' not in container_exists.stdout
   with_dict: "{{ services }}"
+  args:
+    warn: False
 
 - name: Build LXC containers
-  shell: |
+  command: |
     lxc-create --name "{{ item.value[0].name }}" \
-    --template "{{ item.value[0].template }}" \ 
+    --template "{{ item.value[0].template }}" \
     -- "{{ item.value[0].extra_args }}"
   with_dict: "{{ services }}"
   when: container_exists.results[0].rc != 0
+  args:
+    warn: False
   tags:
     - build_lxc
 

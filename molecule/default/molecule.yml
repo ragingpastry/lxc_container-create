@@ -4,12 +4,12 @@ dependency:
 driver:
   name: vagrant
   ssh_connection_options:
-      - -o UserKnownHostsFile=/dev/null
-      - -o ControlMaster=auto
-      - -o ControlPersist=60s
-      - -o IdentitiesOnly=yes
-      - -o StrictHostKeyChecking=no
-      - -o ControlPath=~/.ansible/cp/%r@%h-%p
+    - -o UserKnownHostsFile=/dev/null
+    - -o ControlMaster=auto
+    - -o ControlPersist=60s
+    - -o IdentitiesOnly=yes
+    - -o StrictHostKeyChecking=no
+    - -o ControlPath=~/.ansible/cp/%r@%h-%p
 
 platforms:
   - name: centos7
