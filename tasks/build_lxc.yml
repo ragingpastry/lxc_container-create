@@ -1,22 +1,20 @@
 ---
 - name: Check if containers are already built
-  command: "lxc-info -n {{ item.value[0].name }}"
+  command: "lxc-info -n {{ container_name }}"
   register: container_exists
   changed_when: false
   failed_when: >
     'exist' not in container_exists.stderr and
     'Name' not in container_exists.stdout
-  with_dict: "{{ services }}"
   args:
     warn: False
 
 - name: Build LXC containers
   command: |
-    lxc-create --name "{{ item.value[0].name }}" \
-    --template "{{ item.value[0].template }}" \
-    -- "{{ item.value[0].extra_args }}"
-  with_dict: "{{ services }}"
-  when: container_exists.results[0].rc != 0
+    lxc-create --name "{{ container_name }}" \
+    --template "{{ lxc_template }}" \
+    -- "{{ lxc_extra_args }}"
+  when: container_exists.rc != 0
   args:
     warn: False
   tags:
@@ -25,27 +23,19 @@
 - name: Ensure .ssh exists in container
   file:
     state: directory
-    dest: "/var/lib/lxc/{{ item.value[0].name }}/rootfs/root/.ssh"
+    dest: "/var/lib/lxc/{{ container_name }}/rootfs/root/.ssh"
     owner: root
     group: root
     mode: 0700
-  with_dict: "{{ services }}"
 
 - name: Drop root public key into container
   lineinfile:
     line: "{{ public_ssh_key }}"
-    dest: "/var/lib/lxc/{{ item.value[0].name }}/rootfs/root/.ssh/authorized_keys"
+    dest: "/var/lib/lxc/{{ container_name }}/rootfs/root/.ssh/authorized_keys"
     create: true
-  with_dict: "{{ services }}"
-
-- name: Set container specific veth facts
-  set_fact:
-    {"{{ item.key }}": "{{ lookup('template', 'container-interface.ini.j2') }}"}
-  with_dict: "{{ services }}"
 
 - name: Drop veth configurations
   blockinfile:
-    dest: "/var/lib/lxc/{{ item.value[0].name }}/config"
-    content: "{{ item.key }}"
+    dest: "/var/lib/lxc/{{ container_name }}/config"
+    content: "{{ lookup('template', 'container-interface.ini.j2') }}"
     state: present
-  with_dict: "{{ services }}"

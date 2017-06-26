@@ -1,16 +1,11 @@
 ---
 public_ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDJgGwj0GMp5o5sb2sDL4lhEUmA350mvgK68mGb+Jj2nmCKj9XrPx7KlIZZhtReRSXxY+XgSa/5wUEr1O2xiMFhOeEj+Bj8VYSKu41fjLCIcGkUoN54UklnasvQEpmCQvP81qZedWSLk5KJ8ZZVaq7MVmYVWEPXbvA9MY2UBDoZ167wfZI0H02oOi/aNkwDVH60FElC/cYHILbVEHcnfEn758NEbiO0brPZJqt+vqWs6cFx3sr/bGt5VT+FTwE3OeVxMFN/KW0nAIb8+ZO+/BEb1pjY5OZa4ExhWS2X8atDSBXiw8m8mB5skx5EhUY9gsaRwXI0Z57NEHYQgwcTLvyeRd5cuGZ5KB2cyAluZX75VW7HvvrjBQ1GHtlnC/HBXk/OyACu/WLgDwbnT2ZfzqwCsLrazgS/vziSAKvIVcpkafV+Nlzfsu3zAl+9EZt5h67r/xhdcHkTaGhtiFEWbpUQDHBG0um67YZzjiDFSdN3lY4Ek5+ifH0T+gUb1WxXreyl2oJU1h95o+wtZIa6kcmebekTizSxgiOYak+GgWuGSBJBYjG/xIZH905jyqaJgwP37bsj2xv3qfzRDbQLaCe3vM/i7z0UNx0Pr1FZoQalnB2RPjtpB6T4mvnJ467urLx/aXOJhDqLMGWt+w7vxRxx3bpGd6dNQkYaFYJ8k47HOQ== now@media"
-
-
-services:
-  mariadb:
-    - galera1:
-      name: galera1
-      is_metal: false
-      template: centos
-      ipv4_address: 10.100.10.185/24
-      ipv4_gateway: 10.100.10.1
-      type: veth
-      bridge: br-mgmt
-      interface: eth1
-      extra_args: ""
+container_name: galera1
+is_metal: false
+lxc_template: centos
+lxc_network_ipv4_address: 10.100.10.185/24
+lxc_network_ipv4_gateway: 10.100.10.1
+lxc_network_type: veth
+lxc_network_bridge: br-mgmt
+lxc_network_interface: eth1
+lxc_extra_args: ""
