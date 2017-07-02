@@ -6,4 +6,21 @@
 
 - name: Start LXC containers
   command: "lxc-start --name {{ container_name }}"
-  when: lxc_container_check.rc != 0
+  when: "'STOPPED' in lxc_container_check.stdout"
+
+- name: Ensure .ssh exists in container
+  shell:
+    cmd: |
+      lxc-attach -n "{{ container_name }}" <<EOF
+      mkdir -p /root/.ssh
+      chown root:root /root/.ssh
+      chmod 0700 /root/.ssh
+      EOF
+
+- name: Drop root public key into container
+  shell:
+    cmd: |
+      lxc-attach -n "{{ container_name }}" <<EOF
+      echo "{{ lxc_public_ssh_key }}" >> /root/.ssh/authorized_keys
+      EOF
+

@@ -9,30 +9,23 @@
   args:
     warn: False
 
+- name: Merge lxc_options dict
+  set_fact:
+    lxc_arguments: > 
+      {{ '--template='+lxc_options.lxc_template }}
+      {{ '--vgname '+lxc_options.lxc_vgname if lxc_options.lxc_vgname is defined else '' }}
+      {{ '--bdev '+lxc_options.lxc_backend if lxc_options.lxc_backend != 'file' else '' }}
+      {{ '-- '+lxc_options.lxc_extra_args if lxc_options.lxc_extra_args is defined else '' }}
+
 - name: Build LXC containers
   command: |
     lxc-create --name "{{ container_name }}" \
-    --template "{{ lxc_template }}" \
-    -- "{{ lxc_extra_args }}"
+    "{{ lxc_arguments | regex_replace('\n','') | trim }}"
   when: container_exists.rc != 0
   args:
     warn: False
   tags:
     - build_lxc
-
-- name: Ensure .ssh exists in container
-  file:
-    state: directory
-    dest: "/var/lib/lxc/{{ container_name }}/rootfs/root/.ssh"
-    owner: root
-    group: root
-    mode: 0700
-
-- name: Drop root public key into container
-  lineinfile:
-    line: "{{ public_ssh_key }}"
-    dest: "/var/lib/lxc/{{ container_name }}/rootfs/root/.ssh/authorized_keys"
-    create: true
 
 - name: Drop veth configurations
   blockinfile:
